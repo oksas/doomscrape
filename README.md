@@ -1,1 +1,1 @@
-"# Doomworld Forums Image Scraper" 
+# Doomworld Forums Image Scraper

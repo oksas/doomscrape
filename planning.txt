@@ -54,3 +54,24 @@ At the start and end of a string of posts there is a <table> element located bet
     <td width="10"></td>
   </tr>
 </table>
+
+GET THE FIRST POST
+========
+$("body > table:nth-of-type(6)")
+
+ONCE INSIDE A POST
+========
+How to get things (as a query selector), assuming we are already inside the post's top-level <table>:
+
+username: tr td[1] table tbody tr td table tbody tr[0] td[0] font b <-- text of that (use jquery's :nth-of-type() selector)
+Here's a selector for this that does begin with the top-level element:
+$("table tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b")
+This needs to be refined to actually be inside the post though. Otherwise it gets other stuff.
+
+COUNT NUMBER OF POSTS
+========
+Get the first post. If element's nextSibling.nextSibling is equal to <table> (is this a string? I guess), then the next thing is a post. However if element's nextSibling.nextSibling is equal to <!-- spacer -->, then you know that's the last post.
+
+TEST IF PAGE HAS ANY POSTS ON IT?
+========
+Get the first spacer table (just using :nth-of-type because that should be reliable/same across all pages); if it's nextElementSibling.nextSibling.nextSibling is equal to <!-- /spacer -->, then you know the page has no posts on it.
