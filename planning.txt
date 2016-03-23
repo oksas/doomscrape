@@ -74,4 +74,7 @@ Get the first post. If element's nextSibling.nextSibling is equal to <table> (is
 
 TEST IF PAGE HAS ANY POSTS ON IT?
 ========
+Get first spacer table:
+$("body > table:nth-of-type(5)")
+
 Get the first spacer table (just using :nth-of-type because that should be reliable/same across all pages); if it's nextElementSibling.nextSibling.nextSibling is equal to <!-- /spacer -->, then you know the page has no posts on it.
