@@ -1,0 +1,56 @@
+HOW TO FIND POSTS ON DWF PAGE
+=====
+At the start and end of a string of posts there is a <table> element located between a <!--spacer--> and <!--/spacer--> pair of HTML comments. Each post is a <table> element contained between the pre-spacer and post-spacer. The spacer tables seem to have no defining attributes to distinguish them from posts themselves. Inside each post:
+
+<table> // the post
+  <tr>
+    <td width="10"></td>
+    <td width="100%">  // the stuff we actually care about (the post)
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <table>
+                <tbody>
+                  <tr>  // top of post (left and right sides)
+
+                    <td> // left half
+                      <a></a> // contains post id as element's id
+                      <font>
+                        <b>USER'S NAME HERE</b>
+                      </font>
+                      // more stuff we don't care about
+                    </td>
+
+
+                    <td> // right half
+                      <font></font> // don't care about this; it's empty
+                      <font></font> // THIS IS IMPORTANT; it contains the post's actual content; search here for <img>s and <a>s
+                    </td>
+
+                  </tr>
+
+                  <tr>  // ditto for bottom (date / link on left, profile links on right)
+                    <td> // left half
+                      <font>
+                        <img></img> // don't care about this; read/unread icon
+                        EMPTY TEXT NODE CONTAINING THE DATE
+                        <font></font> // contains the time
+                        <a></a> // the link to the post!
+                      </font>
+                    </td>
+
+                    <td> // right half
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </td>
+    <td width="10"></td>
+  </tr>
+</table>
