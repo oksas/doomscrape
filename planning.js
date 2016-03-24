@@ -1,3 +1,10 @@
+// all this is the callback for an http request
+// all these $ might actually need to be changed to equiv of document.querySelector; on dw (which I've been testing) they're not returning a jquery object?
+// need to test this out
+
+// how to make this all automatic? since we can test for whether posts exist or not, maybe every so often test the next page in a thread (or just save what the last page you did was), and if that page has no posts or has less than 30 posts (a full page), do nothing; otherwise, scrape it
+
+
 // check for posts
 var hasPosts = $("body > table:nth-of-type(5)").nextElementSibling.nextSibling.nextSibling.nodeValue === " /spacer " ? false : true;
 
@@ -45,7 +52,6 @@ for (var i = 0; i < count; i++) {
   for (var j = 0; j < postContent.childNodes.length; j++) {
 
     if (postContent.childNodes[j].nodeName === "IMG") {
-
       var src = postContent.childNodes[j].src;
       var postData = {
         author: postAuthor,
@@ -54,7 +60,10 @@ for (var i = 0; i < count; i++) {
         image: src
       }
       images.push(postData);
-
+    } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].host === "imgur.com") {
+      // call the imgur function!
+      // pass in the post metadata so that the imgur function can directly interact with the database saving api or whatever
+      // this is necessary since the imgur stuff needs to make its own async request
     }
     // else if <a> from imgur, try to extract the data? but shouldn't that be the job of something else?
     // yes; should make separate module for extracting that info; an imgur scraper?
