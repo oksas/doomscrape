@@ -16,6 +16,11 @@ function downloadImage(imageData, path) {
     h: 100
   };
 
+  var minSizes = {
+    w: 200,
+    h: 200
+  };
+
   var rootPath = path || "public/images/";
   var author = imageData.author.toLowerCase();
   var id = imageData.id;
@@ -32,9 +37,9 @@ function downloadImage(imageData, path) {
         var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`
 
         sizeOf(imagePath, function(err, dimensions) {
-          if (dimensions.width < 200 || dimensions.height < 200) {
+          if (dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
             fs.unlink(imagePath, function(err) {
-              if (err) console.error(`There was an error deleting the file ${imagePath}`);
+              if (err) console.error(`There was an error deleting file ${imagePath}`);
 
               console.log(`Successfully deleted ${imagePath}`);
             })
