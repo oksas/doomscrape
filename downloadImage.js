@@ -1,21 +1,22 @@
 var fs = require("fs");
 var request = require("request");
 var easyimage = require("easyimage");
+var sizeOf = require("image-size");
 
-function downloadImage(imageData) {
+function downloadImage(imageData, path) {
   var ext = "";
   var extMappings = {
     "image/jpeg": "jpg",
     "image/png": "png",
     "image/gif": "gif"
-  }
+  };
 
   var thumbSizes = {
     w: 176,
     h: 100
-  }
+  };
 
-  var rootPath = "public/images/";
+  var rootPath = path || "public/images/";
   var author = imageData.author.toLowerCase();
   var id = imageData.id;
 
@@ -27,11 +28,25 @@ function downloadImage(imageData) {
       fs.rename(`${rootPath}${author}_${imageData.id}.temp`, `public/images/${author}_${id}.${ext}`, function(err) {
         if (err) throw err;
 
-        easyimage.thumbnail({
-          src: `${rootPath}${author}_${id}.${ext}`,
-          dst: `${rootPath}${author}_${id}_thumb.${ext}`,
-          width: thumbSizes.w, height: thumbSizes.h,
-          x: 0, y: 0
+        var imagePath = `public/images/${author}_${id}.${ext}`;
+        var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`
+
+        sizeOf(imagePath, function(err, dimensions) {
+          if (dimensions.width < 200 || dimensions.height < 200) {
+            fs.unlink(imagePath, function(err) {
+              if (err) console.error(`There was an error deleting the file ${imagePath}`);
+
+              console.log(`Successfully deleted ${imagePath}`);
+            })
+            return console.log(`Image ${id} from ${author} is too small`)
+          }
+
+          easyimage.thumbnail({
+            src: imagePath,
+            dst: imageThumbPath,
+            width: thumbSizes.w, height: thumbSizes.h,
+            x: 0, y: 0
+          });
         });
       });
     });
