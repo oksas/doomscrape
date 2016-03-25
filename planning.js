@@ -33,6 +33,7 @@ for (var i = 0; i < count; i++) {
   console.log(post);
 
   var postAuthor = $(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerText;
+  // .innerText works in the browser but not in jsdom? so use .innerHTML in jsdom implementation
   console.log(postAuthor);
 
   // need post date
