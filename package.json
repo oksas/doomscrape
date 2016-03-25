@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/oksas/dw-scraper#readme",
   "dependencies": {
+    "easyimage": "^2.1.0",
     "jsdom": "^8.1.0",
     "request": "^2.69.0"
   }
