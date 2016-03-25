@@ -22,7 +22,7 @@ function getImages(url, callback) {
       currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
     }
 
-    console.log(`This page has ${count} posts`);
+    console.log(`The page at:\n ${url}\n has ${count} posts`);
 
     var images = [];
 
@@ -31,15 +31,13 @@ function getImages(url, callback) {
       var post = document.querySelector(`body > table:nth-of-type(${postBase + i + 1})`);
 
       var postAuthor = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
+      console.log("THE POST AUTHOR IS " + postAuthor);
 
-      // need post date
       var postDate = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
 
-      // need post permalink
       var postPermalink = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[4].href;
 
       var postId = /post\/(\d+)/g.exec(postPermalink)[1];
-      console.log("THE POST ID IS" + postId);
 
       var postContent = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
 
@@ -52,16 +50,27 @@ function getImages(url, callback) {
             permalink: postPermalink,
             date: postDate,
             image: src,
+            // The id is not really meaningful/findable here; just insures we have something unique
+            id: `${postId}_${j}`
+          }
+          images.push(postData);
+        } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].firstElementChild && postContent.childNodes[j].firstElementChild.nodeName === "IMG") {
+          var src = postContent.childNodes[j].firstElementChild.src;
+          var postData = {
+            author: postAuthor,
+            permalink: postPermalink,
+            date: postDate,
+            image: src,
+            // The id is not really meaningful/findable here; just insures we have something unique
             id: `${postId}_${j}`
           }
           images.push(postData);
         } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].host === "imgur.com") {
           // call the imgur function! and pass it a postData obj or w/e
+          console.log("Found an imgur link");
         }
       }
     }
-    console.log("IMAGES INCOMING");
-    // images.forEach(image => console.log(image));
     callback(null, images);
   });
 }
