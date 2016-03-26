@@ -26,17 +26,32 @@ function downloadImage(imageData, path) {
   var id = imageData.id;
 
   request(imageData.image, function(err, response, body) {
+
+    if (err) {
+      console.log(`Aborting download ${imageData.image} due to: \n${err}`);
+      return;
+    } else if (response.statusCode !== 200) {
+      console.log(`Aborting download ${imageData.image} from \n${author} with id ${id} due to status code of ${response.statusCode}`);
+      return;
+    } // maybe manually check the content type?? just make sure it starts with image/ or whatever
+
     ext = extMappings[response.headers["content-type"]] || "png";
   })
     .pipe(fs.createWriteStream(`${rootPath}${author}_${id}.temp`))
+    .on("error", function() {
+      console.log(`There was an error with the stream!`);
+    })
     .on("finish", function() {
-      fs.rename(`${rootPath}${author}_${imageData.id}.temp`, `public/images/${author}_${id}.${ext}`, function(err) {
+      console.log(`About to rename \n ${rootPath}${author}_${id}.temp to \n public/images/${author}_${id}.${ext}`);
+      fs.rename(`${rootPath}${author}_${id}.temp`, `public/images/${author}_${id}.${ext}`, function(err) {
         if (err) throw err;
 
         var imagePath = `public/images/${author}_${id}.${ext}`;
-        var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`
+        var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`;
 
         sizeOf(imagePath, function(err, dimensions) {
+          if (err) throw err;
+
           if (dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
             fs.unlink(imagePath, function(err) {
               if (err) console.error(`There was an error deleting file ${imagePath}`);
