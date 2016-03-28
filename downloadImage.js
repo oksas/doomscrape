@@ -2,7 +2,7 @@ var fs = require("fs");
 var rp = require("request-promise");
 var easyimage = require("easyimage");
 var sizeOf = require("image-size");
-
+// this should take a callback
 function downloadImage(imageData, path) {
   var ext = "";
   var extMappings = {
@@ -33,7 +33,6 @@ function downloadImage(imageData, path) {
 
   rp(options)
     .then(function(response) {
-      console.log(response.headers["content-type"]);
 
       var ext = extMappings[response.headers["content-type"]] || "png";
 
@@ -43,18 +42,17 @@ function downloadImage(imageData, path) {
       fs.writeFile(imagePath, response.body, function(err) {
         if (err) throw err;
 
-        console.log("Saved the file with no errors I guess?");
+        console.log(`Saved ${author}_${id}`);
 
         sizeOf(imagePath, function(err, dimensions) {
-          if (err) throw err;
 
-          if (dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
+          if (err || dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
             fs.unlink(imagePath, function(err) {
               if (err) console.error(`There was an error deleting file ${imagePath}`);
 
               console.log(`Successfully deleted ${imagePath}`);
             })
-            return console.log(`Image ${id} from ${author} is too small`)
+            return console.log(`Image ${id} from ${author} is too small, probably`)
           }
 
           easyimage.thumbnail({
@@ -62,7 +60,13 @@ function downloadImage(imageData, path) {
             dst: imageThumbPath,
             width: thumbSizes.w, height: thumbSizes.h,
             x: 0, y: 0
-          });
+          })
+            .then(function(image) {
+              console.log(`Created thumbnail ${imageThumbPath}`);
+            },
+            function(err) {
+              console.error(`ERROR MAKING THUMBNAIL: \n${err}`);
+            });
         });
 
       });
@@ -70,7 +74,7 @@ function downloadImage(imageData, path) {
     .catch(function(err) {
       if (err) {
         console.log("============");
-        console.log(`THERE WAS AN ERROR:\n ${err}`);
+        console.log(`THERE WAS AN ERROR WITH \n${imageData.image} from post \n${imageData.permalink}`);
         console.log("============");
       }
     });

@@ -1,7 +1,8 @@
 var request = require("request");
 var jsdom = require("jsdom").jsdom;
+var getImgurImages = require("./getImgurImages");
 
-function getImages(url, callback) {
+module.exports = function getImages(url, callback) {
   request(url, function(err, response, body) {
     if (err) throw err;
 
@@ -22,7 +23,9 @@ function getImages(url, callback) {
       currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
     }
 
-    console.log(`The page at:\n ${url}\n has ${count} posts`);
+    if (count < 30) {
+      return callback(`page ${url}\n has less than 30 posts on it; ABORT`);
+    }
 
     var images = [];
 
@@ -31,7 +34,6 @@ function getImages(url, callback) {
       var post = document.querySelector(`body > table:nth-of-type(${postBase + i + 1})`);
 
       var postAuthor = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
-      console.log("THE POST AUTHOR IS " + postAuthor);
 
       var postDate = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
 
@@ -40,6 +42,8 @@ function getImages(url, callback) {
       var postId = /post\/(\d+)/g.exec(postPermalink)[1];
 
       var postContent = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
+
+      var imageCount = 0;
 
       for (var j = 0; j < postContent.childNodes.length; j++) {
 
@@ -50,10 +54,24 @@ function getImages(url, callback) {
             permalink: postPermalink,
             date: postDate,
             image: src,
-            // The id is not really meaningful/findable here; just insures we have something unique
-            id: `${postId}_${j}`
-          }
+            id: `${postId}_${++imageCount}`
+          };
           images.push(postData);
+        } else if (postContent.childNodes[j].nodeName === "A" &&
+                    postContent.childNodes[j].firstElementChild &&
+                    postContent.childNodes[j].firstElementChild.nodeName === "IMG" &&
+                    postContent.childNodes[j].firstElementChild.src.includes("imgur.com")) {
+          // HEY YOU, FUTURE ME
+          // consolidate all this silly postData creation in the future using Object.create or spread or something
+          console.log(`Found a type 2 imgur link in post by ${postAuthor}`);
+          var postData = {
+            author: postAuthor,
+            permalink: postPermalink,
+            date: postDate,
+            postId: postId,
+            startIndex: ++imageCount
+          };
+          getImgurImages(postContent.childNodes[j].href, postData, callback);
         } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].firstElementChild && postContent.childNodes[j].firstElementChild.nodeName === "IMG") {
           var src = postContent.childNodes[j].firstElementChild.src;
           var postData = {
@@ -61,18 +79,22 @@ function getImages(url, callback) {
             permalink: postPermalink,
             date: postDate,
             image: src,
-            // The id is not really meaningful/findable here; just insures we have something unique
-            id: `${postId}_${j}`
-          }
+            id: `${postId}_${++imageCount}`
+          };
           images.push(postData);
-        } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].host === "imgur.com") {
-          // call the imgur function! and pass it a postData obj or w/e
-          console.log("Found an imgur link");
+        } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].host.includes("imgur.com")) {
+          console.log(`Found an imgur link in post by ${postAuthor}`);
+          var postData = {
+            author: postAuthor,
+            permalink: postPermalink,
+            date: postDate,
+            postId: postId,
+            startIndex: ++imageCount
+          };
+          getImgurImages(postContent.childNodes[j].href, postData, callback);
         }
       }
     }
     callback(null, images);
   });
-}
-
-module.exports = getImages;
+};
