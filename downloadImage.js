@@ -3,7 +3,7 @@ var rp = require("request-promise");
 var easyimage = require("easyimage");
 var sizeOf = require("image-size");
 // this should take a callback
-function downloadImage(imageData, path) {
+function downloadImage(imageData, callback) {
   var ext = "";
   var extMappings = {
     "image/jpeg": "jpg",
@@ -21,7 +21,7 @@ function downloadImage(imageData, path) {
     h: 200
   };
 
-  var rootPath = path || "public/images/";
+  var rootPath = "public/images/";
   var author = imageData.author.toLowerCase();
   var id = imageData.id;
 
@@ -40,7 +40,7 @@ function downloadImage(imageData, path) {
       var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`;
 
       fs.writeFile(imagePath, response.body, function(err) {
-        if (err) throw err;
+        if (err) return callback(err);
 
         console.log(`Saved ${author}_${id}`);
 
@@ -48,7 +48,7 @@ function downloadImage(imageData, path) {
 
           if (err || dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
             fs.unlink(imagePath, function(err) {
-              if (err) console.error(`There was an error deleting file ${imagePath}`);
+              if (err) return callback(`There was an error deleting file ${imagePath}`);
 
               console.log(`Successfully deleted ${imagePath}`);
             })
@@ -63,9 +63,10 @@ function downloadImage(imageData, path) {
           })
             .then(function(image) {
               console.log(`Created thumbnail ${imageThumbPath}`);
+              callback(null, err);
             },
             function(err) {
-              console.error(`ERROR MAKING THUMBNAIL: \n${err}`);
+              if (err) callback(`ERROR MAKING THUMBNAIL: \n${err}`);
             });
         });
 

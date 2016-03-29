@@ -8,7 +8,9 @@ module.exports = function getImages(url, callback) {
 
     var document = jsdom(body);
 
-    var hasPosts = document.querySelector("body > table:nth-of-type(5)").nextElementSibling.nextSibling.nextSibling.nodeValue === " /spacer " ? false : true;
+    var hasPosts = document.querySelector("body > table:nth-of-type(5)")
+      .nextElementSibling.nextSibling.nextSibling.nodeValue === " /spacer " ?
+      false : true;
 
     if (!hasPosts) {
       return callback(`No posts found on this page.`);
@@ -45,9 +47,16 @@ module.exports = function getImages(url, callback) {
 
       var imageCount = 0;
 
+      var allPostData = {
+        author: postAuthor,
+        permalink: postPermalink,
+        date: postDate
+      };
+
       for (var j = 0; j < postContent.childNodes.length; j++) {
 
         if (postContent.childNodes[j].nodeName === "IMG") {
+
           var src = postContent.childNodes[j].src;
           var postData = {
             author: postAuthor,
@@ -56,14 +65,25 @@ module.exports = function getImages(url, callback) {
             image: src,
             id: `${postId}_${++imageCount}`
           };
+          // var postData = Object.create({}, allPostData, {
+          //   image: src,
+          //   id: `${postId}_${++imageCount}`
+          // });
+
+          // this doesn't work even with --harmony; is object spread not a thing anymore?
+          // var postData = {
+          //   ...allPostData,
+          //   image: src,
+          //   id: `${postId}_${++imageCount}`
+          // };
           images.push(postData);
+
         } else if (postContent.childNodes[j].nodeName === "A" &&
                     postContent.childNodes[j].firstElementChild &&
                     postContent.childNodes[j].firstElementChild.nodeName === "IMG" &&
                     postContent.childNodes[j].firstElementChild.src.includes("imgur.com")) {
           // HEY YOU, FUTURE ME
           // consolidate all this silly postData creation in the future using Object.create or spread or something
-          console.log(`Found a type 2 imgur link in post by ${postAuthor}`);
           var postData = {
             author: postAuthor,
             permalink: postPermalink,
@@ -72,7 +92,11 @@ module.exports = function getImages(url, callback) {
             startIndex: ++imageCount
           };
           getImgurImages(postContent.childNodes[j].href, postData, callback);
-        } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].firstElementChild && postContent.childNodes[j].firstElementChild.nodeName === "IMG") {
+
+        } else if (postContent.childNodes[j].nodeName === "A" &&
+                    postContent.childNodes[j].firstElementChild &&
+                    postContent.childNodes[j].firstElementChild.nodeName === "IMG") {
+
           var src = postContent.childNodes[j].firstElementChild.src;
           var postData = {
             author: postAuthor,
@@ -82,7 +106,9 @@ module.exports = function getImages(url, callback) {
             id: `${postId}_${++imageCount}`
           };
           images.push(postData);
-        } else if (postContent.childNodes[j].nodeName === "A" && postContent.childNodes[j].host.includes("imgur.com")) {
+
+        } else if (postContent.childNodes[j].nodeName === "A" &&
+                    postContent.childNodes[j].host.includes("imgur.com")) {
           console.log(`Found an imgur link in post by ${postAuthor}`);
           var postData = {
             author: postAuthor,
@@ -93,6 +119,7 @@ module.exports = function getImages(url, callback) {
           };
           getImgurImages(postContent.childNodes[j].href, postData, callback);
         }
+
       }
     }
     callback(null, images);

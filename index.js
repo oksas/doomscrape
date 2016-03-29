@@ -1,5 +1,6 @@
 var getImages = require("./getImages");
 var dlImage = require("./downloadImage");
+var db = require("./db");
 
 var urls = [
   // "https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/142/",
@@ -13,7 +14,7 @@ var urls = [
   // "https://www.doomworld.com/vb/doom-general/42866-post-your-doom-picture-post-in-part-2-instead/322",
   // "https://www.doomworld.com/vb/doom-general/42866-post-your-doom-picture-post-in-part-2-instead/326"
   // "https://www.doomworld.com/vb/doom-general/42866-post-your-doom-picture-post-in-part-2-instead/521/"
-  "https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/123/"
+  "https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/128/"
 ];
 
 urls.forEach(url => {
