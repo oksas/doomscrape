@@ -38,6 +38,7 @@ module.exports = function getImages(url, callback) {
       var postAuthor = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
 
       var postDate = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
+      postDate = new Date(postDate);
 
       var postPermalink = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[4].href;
 
@@ -55,9 +56,10 @@ module.exports = function getImages(url, callback) {
 
       for (var j = 0; j < postContent.childNodes.length; j++) {
 
-        if (postContent.childNodes[j].nodeName === "IMG") {
+        var node = postContent.childNodes[j];
+        if (node.nodeName === "IMG") {
 
-          var src = postContent.childNodes[j].src;
+          var src = node.src;
           var postData = {
             author: postAuthor,
             permalink: postPermalink,
@@ -78,10 +80,10 @@ module.exports = function getImages(url, callback) {
           // };
           images.push(postData);
 
-        } else if (postContent.childNodes[j].nodeName === "A" &&
-                    postContent.childNodes[j].firstElementChild &&
-                    postContent.childNodes[j].firstElementChild.nodeName === "IMG" &&
-                    postContent.childNodes[j].firstElementChild.src.includes("imgur.com")) {
+        } else if (node.nodeName === "A" &&
+                    node.firstElementChild &&
+                    node.firstElementChild.nodeName === "IMG" &&
+                    node.firstElementChild.src.includes("imgur.com")) {
           // HEY YOU, FUTURE ME
           // consolidate all this silly postData creation in the future using Object.create or spread or something
           var postData = {
@@ -91,13 +93,13 @@ module.exports = function getImages(url, callback) {
             postId: postId,
             startIndex: ++imageCount
           };
-          getImgurImages(postContent.childNodes[j].href, postData, callback);
+          getImgurImages(node.href, postData, callback);
 
-        } else if (postContent.childNodes[j].nodeName === "A" &&
-                    postContent.childNodes[j].firstElementChild &&
-                    postContent.childNodes[j].firstElementChild.nodeName === "IMG") {
+        } else if (node.nodeName === "A" &&
+                    node.firstElementChild &&
+                    node.firstElementChild.nodeName === "IMG") {
 
-          var src = postContent.childNodes[j].firstElementChild.src;
+          var src = node.firstElementChild.src;
           var postData = {
             author: postAuthor,
             permalink: postPermalink,
@@ -107,8 +109,8 @@ module.exports = function getImages(url, callback) {
           };
           images.push(postData);
 
-        } else if (postContent.childNodes[j].nodeName === "A" &&
-                    postContent.childNodes[j].host.includes("imgur.com")) {
+        } else if (node.nodeName === "A" &&
+                    node.host.includes("imgur.com")) {
           console.log(`Found an imgur link in post by ${postAuthor}`);
           var postData = {
             author: postAuthor,
@@ -117,7 +119,7 @@ module.exports = function getImages(url, callback) {
             postId: postId,
             startIndex: ++imageCount
           };
-          getImgurImages(postContent.childNodes[j].href, postData, callback);
+          getImgurImages(node.href, postData, callback);
         }
 
       }

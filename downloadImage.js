@@ -21,7 +21,7 @@ function downloadImage(imageData, callback) {
     h: 200
   };
 
-  var rootPath = "public/images/";
+  var basePath = "public/images/";
   var author = imageData.author.toLowerCase();
   var id = imageData.id;
 
@@ -36,8 +36,8 @@ function downloadImage(imageData, callback) {
 
       var ext = extMappings[response.headers["content-type"]] || "png";
 
-      var imagePath = `${rootPath}${author}_${id}.${ext}`;
-      var imageThumbPath = `${rootPath}${author}_${id}_thumb.${ext}`;
+      var imagePath = `${basePath}${author}_${id}.${ext}`;
+      var imageThumbPath = `${basePath}${author}_${id}_thumb.${ext}`;
 
       fs.writeFile(imagePath, response.body, function(err) {
         if (err) return callback(err);
@@ -63,7 +63,18 @@ function downloadImage(imageData, callback) {
           })
             .then(function(image) {
               console.log(`Created thumbnail ${imageThumbPath}`);
-              callback(null, err);
+              callback(null, {
+                author: imageData.author,
+                _id: imageData.id,
+                permalink: imageData.permalink,
+                date: imageData.date,
+                filename: `${author}_${id}.${ext}`,
+                filepath: basePath,
+                meta: {
+                  reportCount: 0
+                }
+              });
+
             },
             function(err) {
               if (err) callback(`ERROR MAKING THUMBNAIL: \n${err}`);
