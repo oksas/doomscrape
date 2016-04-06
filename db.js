@@ -25,10 +25,13 @@ module.exports = {
     DoomImage.create(imageData, callback);
   },
 
-  getPage: function(options, callback) {
+  getImages: function(options, callback) {
     // Need way to use regex in the query object
     // Or it would be useful, anyway
-    DoomImage.paginate({ }, {
+    DoomImage.paginate({
+      // need to be able to make this empty obj if no author/date/whatever
+      // is supplied in options, otherwise construct the object appropriately
+    }, {
       page: options.page || 1,
       limit: options.limit || 10
     }, callback);

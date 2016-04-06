@@ -2,7 +2,7 @@ var fs = require("fs");
 var rp = require("request-promise");
 var easyimage = require("easyimage");
 var sizeOf = require("image-size");
-// this should take a callback
+
 function downloadImage(imageData, callback) {
   var ext = "";
   var extMappings = {

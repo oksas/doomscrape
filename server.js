@@ -12,7 +12,7 @@ app.get("/", function(req, res) {
 });
 
 app.get("/images/", function(req, res) {
-  db.getPage(req.query, function(err, docs) {
+  db.getImages(req.query, function(err, docs) {
     res.send(docs);
   });
 });
