@@ -21,11 +21,10 @@ module.exports = function getImgurImages(url, postInfo, callback) {\
       return callback(null, [postData]);
     }
 
-    var document = jsdom(body);
-
-    var items = document.querySelectorAll(".zoom");
-    var count = items.length;
-    var images = [];
+    var document = jsdom(body),
+        items = document.querySelectorAll(".zoom"),
+        count = items.length,
+        images = [];
 
     items.forEach(function(item) {
       var src = "http:" + item.href;
@@ -37,6 +36,7 @@ module.exports = function getImgurImages(url, postInfo, callback) {\
         image: src,
         id: `${postInfo.postId}_${start++}`
       };
+
       images.push(postData);
     });
 
