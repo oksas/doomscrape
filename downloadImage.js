@@ -2,11 +2,8 @@ var fs = require("fs");
 var rp = require("request-promise");
 var easyimage = require("easyimage");
 var sizeOf = require("image-size");
-var createThumbnail = require("./createThumbnail");
 var imageConfig = require("./imageConfig");
-// Split this all up into separate functions
-// Make sure each part gets the right data; createThumbnail is expecting imageData
-// that also has filename and thumbname, so make sure it gets that data
+
 function downloadImage(imageData, callback) {
   var ext = "";
 
@@ -22,53 +19,69 @@ function downloadImage(imageData, callback) {
   rp(options)
     .then(function(response) {
 
-      // Extracts filetype based on headers; fallback to png
       var ext = imageConfig.extMappings[response.headers["content-type"]] || "png";
 
       var imagePath = `${imageConfig.basePath}${author}_${id}.${ext}`;
-      // create subfunction fileWritten
-      fs.writeFile(imagePath, response.body, function(err) {
+
+      fs.writeFile(imagePath, response.body, fileWritten);
+
+      function fileWritten(err) {
         if (err) return callback(err);
-
         console.log(`Saved ${author}_${id}`);
-        // create subfunction fileSized
-        sizeOf(imagePath, function(err, dimensions) {
+        sizeOf(imagePath, response.body, fileSized);
+      }
 
-          if (err ||
-              dimensions.width < imageConfig.minSizes.w ||
-              dimensions.height < imageConfig.minSizes.h) {
-            // create subfunction fileDeleted
-            fs.unlink(imagePath, function(err) {
-              if (err) return callback(`There was an error deleting file ${imagePath}`);
-              console.log(`Successfully deleted ${imagePath}`);
-            });
-            return console.log(`Image ${id} from ${author} is too small, probably`);
+      function fileSized(err, dimensions) {
+
+        if (err ||
+            dimensions.width < imageConfig.minSizes.w ||
+            dimensions.height < imageConfig.minSizes.h) {
+          fs.unlink(imagePath, fileDeleted);
+          return console.log(`Image ${id} from ${author} is too small, probably`);
+        }
+
+        var fullData = {
+          author: imageData.author,
+          _id: imageData.id,
+          permalink: imageData.permalink,
+          date: imageData.date,
+          filename: `${author}_${id}.${ext}`,
+          thumbname: `${author}_${id}_thumb.${ext}`,
+          filepath: imageConfig.basePath,
+          meta: {
+            reportCount: 0
           }
+        };
 
-          var fullData = {
-            author: imageData.author,
-            _id: imageData.id,
-            permalink: imageData.permalink,
-            date: imageData.date,
-            filename: `${author}_${id}.${ext}`,
-            thumbname: `${author}_${id}_thumb.${ext}`,
-            filepath: imageConfig.basePath,
-            meta: {
-              reportCount: 0
-            }
-          };
+        createThumbnail(fullData)
+          .then(thumbnailCreated, thumbnailError);
 
-          createThumbnail(fullData)
-            .then(function() {
-              console.log(`Created thumbnail ${fullData.thumbname}`);
-              callback(null, fullData);
-            },
-            function(err) {
-              if (err) callback(`ERROR MAKING THUMBNAIL: \n${err}`);
-            });
+      }
+
+      function fileDeleted(err) {
+        if (err) return callback(`There was an error deleting file ${imagePath}`);
+        console.log(`Successfully deleted ${imagePath}`);
+      }
+
+      function createThumbnail(imageData) {
+        return easyimage.thumbnail({
+          src: imageData.filepath + imageData.filename,
+          dst: imageData.filepath + imageData.thumbname,
+          width: imageConfig.thumbSizes.w,
+          height: imageConfig.thumbSizes.h,
+          x: 0, y: 0
         });
+      }
 
-      });
+      function thumbnailCreated() {
+        console.log(`Created thumbnail ${fullData.thumbname}`);
+        callback(null, fullData);
+      }
+
+      function thumbnailError(err) {
+        if (err) callback(`ERROR MAKING THUMBNAIL: \n${err}`);
+      }
+
     })
     .catch(function(err) {
       if (err) {

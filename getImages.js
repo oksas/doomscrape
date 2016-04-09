@@ -36,6 +36,7 @@ module.exports = function getImages(url, callback) {
       var post = document.querySelector(`body > table:nth-of-type(${postBase + i + 1})`);
 
       var postAuthor = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
+      console.log(`Post author is ${postAuthor}`);
 
       var postDate = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
       postDate = new Date(postDate);
@@ -54,7 +55,7 @@ module.exports = function getImages(url, callback) {
         date: postDate
       };
 
-      postContent.childNodes.forEach(function(node) {
+      [].forEach.call(postContent.childNodes, function(node) {
         var postData,
             src;
         if (node.nodeName === "IMG") {
