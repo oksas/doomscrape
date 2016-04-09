@@ -38,7 +38,7 @@ urls.forEach(url => {
           }
 
           console.log("Image saved to database!");
-        })
+        });
       });
     });
   });

@@ -1,7 +1,7 @@
 var request = require("request");
 var jsdom = require("jsdom").jsdom;
 
-module.exports = function getImgurImages(url, postInfo, callback) {\
+module.exports = function getImgurImages(url, postInfo, callback) {
   request(url, function(err, response, body) {
     if (err) {
       return callback(err);

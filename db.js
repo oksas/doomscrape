@@ -7,6 +7,7 @@ var doomImageSchema = mongoose.Schema({
   permalink: String,
   date: Date,
   filename: String,
+  thumbname: String,
   filepath: String,
   _id: String,
   meta: {

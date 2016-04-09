@@ -2,26 +2,17 @@ var fs = require("fs");
 var rp = require("request-promise");
 var easyimage = require("easyimage");
 var sizeOf = require("image-size");
-
+var createThumbnail = require("./createThumbnail");
+var imageConfig = require("./imageConfig");
+// Split this all up into separate functions
+// Make sure each part gets the right data; createThumbnail is expecting imageData
+// that also has filename and thumbname, so make sure it gets that data
+// Probably make a copy of the args using Object.assign, and put new things on it
+// (filename and thumbname), then give it to the functions that need it, such as
+// createThumbnail
 function downloadImage(imageData, callback) {
   var ext = "";
-  var extMappings = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif"
-  };
 
-  var thumbSizes = {
-    w: 176,
-    h: 100
-  };
-
-  var minSizes = {
-    w: 200,
-    h: 200
-  };
-
-  var basePath = "public/images/";
   var author = imageData.author.toLowerCase();
   var id = imageData.id;
 
@@ -34,10 +25,10 @@ function downloadImage(imageData, callback) {
   rp(options)
     .then(function(response) {
 
-      var ext = extMappings[response.headers["content-type"]] || "png";
+      var ext = imageConfig.extMappings[response.headers["content-type"]] || "png";
 
-      var imagePath = `${basePath}${author}_${id}.${ext}`;
-      var imageThumbPath = `${basePath}${author}_${id}_thumb.${ext}`;
+      var imagePath = `${imageConfig.basePath}${author}_${id}.${ext}`;
+      var imageThumbPath = `${imageConfig.basePath}${author}_${id}_thumb.${ext}`;
 
       fs.writeFile(imagePath, response.body, function(err) {
         if (err) return callback(err);
@@ -46,34 +37,36 @@ function downloadImage(imageData, callback) {
 
         sizeOf(imagePath, function(err, dimensions) {
 
-          if (err || dimensions.width < minSizes.w || dimensions.height < minSizes.h) {
+          if (err ||
+              dimensions.width < imageConfig.minSizes.w ||
+              dimensions.height < imageConfig.minSizes.h) {
             fs.unlink(imagePath, function(err) {
               if (err) return callback(`There was an error deleting file ${imagePath}`);
 
               console.log(`Successfully deleted ${imagePath}`);
-            })
-            return console.log(`Image ${id} from ${author} is too small, probably`)
+            });
+            return console.log(`Image ${id} from ${author} is too small, probably`);
           }
+          // imageData needs to have the filename and thumbname
+          // so do imageData.filename = whatever
+          // I guess? That seems like poor practice though
+          var fullData = {
+            author: imageData.author,
+            _id: imageData.id,
+            permalink: imageData.permalink,
+            date: imageData.date,
+            filename: `${author}_${id}.${ext}`,
+            thumbname: `${author}_${id}_thumb.${ext}`,
+            filepath: imageConfig.basePath,
+            meta: {
+              reportCount: 0
+            }
+          };
 
-          easyimage.thumbnail({
-            src: imagePath,
-            dst: imageThumbPath,
-            width: thumbSizes.w, height: thumbSizes.h,
-            x: 0, y: 0
-          })
+          createThumbnail(fullData)
             .then(function(image) {
               console.log(`Created thumbnail ${imageThumbPath}`);
-              callback(null, {
-                author: imageData.author,
-                _id: imageData.id,
-                permalink: imageData.permalink,
-                date: imageData.date,
-                filename: `${author}_${id}.${ext}`,
-                filepath: basePath,
-                meta: {
-                  reportCount: 0
-                }
-              });
+              callback(null, fullData);
 
             },
             function(err) {
@@ -90,6 +83,6 @@ function downloadImage(imageData, callback) {
         console.log("============");
       }
     });
-};
+}
 
 module.exports = downloadImage;
