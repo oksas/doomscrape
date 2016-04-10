@@ -18,8 +18,12 @@ function downloadImage(imageData, callback) {
 
   rp(options)
     .then(function(response) {
+      
+      if (response.headers["content-type"].substr(0, 5) !== "image") {
+        return callback("Not an image");
+      }
 
-      var ext = imageConfig.extMappings[response.headers["content-type"]] || "png";
+      var ext = imageConfig.extMappings[response.headers["content-type"]];
 
       var imagePath = `${imageConfig.basePath}${author}_${id}.${ext}`;
 
@@ -28,11 +32,10 @@ function downloadImage(imageData, callback) {
       function fileWritten(err) {
         if (err) return callback(err);
         console.log(`Saved ${author}_${id}`);
-        sizeOf(imagePath, response.body, fileSized);
+        sizeOf(imagePath, fileSized);
       }
 
       function fileSized(err, dimensions) {
-
         if (err ||
             dimensions.width < imageConfig.minSizes.w ||
             dimensions.height < imageConfig.minSizes.h) {

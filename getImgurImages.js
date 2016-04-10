@@ -26,7 +26,7 @@ module.exports = function getImgurImages(url, postInfo, callback) {
         count = items.length,
         images = [];
 
-    items.forEach(function(item) {
+    [].forEach.call(items, function(item) {
       var src = "http:" + item.href;
 
       var postData = {

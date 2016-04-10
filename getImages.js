@@ -58,6 +58,7 @@ module.exports = function getImages(url, callback) {
       [].forEach.call(postContent.childNodes, function(node) {
         var postData,
             src;
+            
         if (node.nodeName === "IMG") {
 
           src = node.src;
