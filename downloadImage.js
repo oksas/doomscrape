@@ -18,7 +18,7 @@ function downloadImage(imageData, callback) {
 
   rp(options)
     .then(function(response) {
-      
+
       if (response.headers["content-type"].substr(0, 5) !== "image") {
         return callback("Not an image");
       }
