@@ -1,6 +1,6 @@
-var mongoose = require("mongoose");
-var random = require("mongoose-simple-random");
-var mongoosePaginate = require("mongoose-paginate");
+var mongoose = require('mongoose');
+var random = require('mongoose-simple-random');
+var mongoosePaginate = require('mongoose-paginate');
 
 var doomImageSchema = mongoose.Schema({
   author: String,
@@ -18,7 +18,7 @@ var doomImageSchema = mongoose.Schema({
 doomImageSchema.plugin(random);
 doomImageSchema.plugin(mongoosePaginate);
 
-var DoomImage = mongoose.model("DoomImage", doomImageSchema);
+var DoomImage = mongoose.model('DoomImage', doomImageSchema);
 
 module.exports = {
 
