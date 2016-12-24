@@ -1,7 +1,7 @@
 var db = require('../db');
 var Sequelize = require('sequelize');
 
-var DoomImage = db.define('photo', {
+var DoomImage = db.define('doom_image', {
 	id: {
 		type: Sequelize.INTEGER,
 		autoIncrement: true,
@@ -11,6 +11,9 @@ var DoomImage = db.define('photo', {
 		type: Sequelize.STRING
 	},
 	permalink: {
+		type: Sequelize.STRING
+	},
+	postlink: {
 		type: Sequelize.STRING
 	},
 	date: {
@@ -26,4 +29,4 @@ var DoomImage = db.define('photo', {
 
 DoomImage.sync();
 
-module.exprots = DoomImage;
+module.exports = DoomImage;
