@@ -6,6 +6,9 @@ var methods = {
 		.spread((doomImage, created) => {
 			return doomImage.dataValues;
 		});
+	},
+	findAll: function(filterOptions) {
+		return DoomImage.findAll({ where: filterOptions });
 	}
 };
 
