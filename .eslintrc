@@ -8,7 +8,9 @@
   "rules": {
     "semi": ["error", "always"],
     "space-before-function-paren": ["error", "never"],
-    "jsx-quotes": ["error", "prefer-double"]
+    "jsx-quotes": ["error", "prefer-double"],
+    "indent": ["error", "tab"],
+    "no-tabs": [0]
   },
   "plugins": [
     "react"
