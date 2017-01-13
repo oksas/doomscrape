@@ -40,7 +40,7 @@ let pageUtils = {
 
 		let allPostData = {
 			author: postAuthor,
-			permalink: postPermalink,
+			postlink: postPermalink,
 			date: postDate
 		};
 
