@@ -1,4 +1,4 @@
-var fs = require('fs');
+var fs = require('fs-promise');
 var request = require('request-promise-native');
 var easyimage = require('easyimage');
 var sizeOf = require('image-size');
@@ -9,7 +9,7 @@ function downloadImage(imageData, callback) {
 	let id = imageData.id;
 
 	let options = {
-		uri: imageData.image,
+		uri: imageData.imageSrc,
 		resolveWithFullResponse: true,
 		encoding: null
 	};
