@@ -1,6 +1,8 @@
 // var getImgurImages = require('./getImgurImages');
 
 let pageUtils = {
+	// postBase tells us how many tables inside body we need to skip before finding
+	// a potential post
 	postBase: 5,
 
 	hasPosts(document) {
