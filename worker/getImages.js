@@ -38,64 +38,57 @@ module.exports = function getImages(url, callback) {
 
 			var postContent = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
 
-      var imageCount = 0;
+			var imageCount = 0;
 
-      var allPostData = {
-        author: postAuthor,
-        permalink: postPermalink,
-        date: postDate
-      };
+			var allPostData = {
+				author: postAuthor,
+				permalink: postPermalink,
+				date: postDate
+			};
 
-      [].forEach.call(postContent.childNodes, function(node) {
-        var postData,
-            src;
+			[].forEach.call(postContent.childNodes, function(node) {
+				var postData,
+					src;
 
-        if (node.nodeName === 'IMG') {
+				if (node.nodeName === 'IMG') {
+					src = node.src;
+					postData = Object.assign({}, allPostData, {
+						image: src,
+						id: `${postId}_${++imageCount}`
+					});
 
-          src = node.src;
-          postData = Object.assign({}, allPostData, {
-            image: src,
-            id: `${postId}_${++imageCount}`
-          });
-
-          images.push(postData);
-
-        } else if (node.nodeName === 'A' &&
+					images.push(postData);
+				} else if (node.nodeName === 'A' &&
                     node.firstElementChild &&
                     node.firstElementChild.nodeName === 'IMG' &&
-                    node.firstElementChild.src.includes('imgur.com')) {
+										node.firstElementChild.src.includes('imgur.com')) {
+					postData = Object.assign({}, allPostData, {
+						postId: postId,
+						startIndex: ++imageCount
+					});
 
-          postData = Object.assign({}, allPostData, {
-            postId: postId,
-            startIndex: ++imageCount
-          });
-
-          getImgurImages(node.href, postData, callback);
-
-        } else if (node.nodeName === 'A' &&
+					getImgurImages(node.href, postData, callback);
+				} else if (node.nodeName === 'A' &&
                     node.firstElementChild &&
                     node.firstElementChild.nodeName === 'IMG') {
+					src = node.firstElementChild.src;
+					postData = Object.assign({}, allPostData, {
+						image: src,
+						id: `${postId}_${++imageCount}`
+					});
 
-          src = node.firstElementChild.src;
-          postData = Object.assign({}, allPostData, {
-            image: src,
-            id: `${postId}_${++imageCount}`
-          });
-
-          images.push(postData);
-
-        } else if (node.nodeName === 'A' &&
+					images.push(postData);
+				} else if (node.nodeName === 'A' &&
                     node.host.includes('imgur.com')) {
-          postData = Object.assign({}, allPostData, {
-            postId: postId,
-            startIndex: ++imageCount
-          });
-          getImgurImages(node.href, postData, callback);
-        }
-
-      });
-    }
+					postData = Object.assign({}, allPostData, {
+						postId: postId,
+						startIndex: ++imageCount
+					});
+					getImgurImages(node.href, postData, callback);
+				}
+			});
+		}
 
 		return images;
-  });
+	});
 };
