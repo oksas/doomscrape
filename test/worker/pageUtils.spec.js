@@ -56,6 +56,7 @@ describe('pageUtils', () => {
 		});
 	});
 
+	// we are not bothering to test empty pages for now since that's really hasPosts' job
 	describe('getPostCount', () => {
 		it('should accurately report a post count on a full page', done => {
 			request(fullPageUrl)

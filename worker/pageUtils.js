@@ -26,7 +26,6 @@ let pageUtils = {
 		let post = document.querySelector(`body > table:nth-of-type(${this.postBase + i + 1})`);
 
 		let postAuthor = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
-		console.log(`Post author is ${postAuthor}`);
 
 		let postDate = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
 		postDate = new Date(postDate);
