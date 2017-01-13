@@ -12,7 +12,6 @@ describe('getImages', () => {
 	it('should find the proper number of images on a full page', done => {
 		getImages(url)
 		.then(images => {
-			console.log('sup dawg');
 			expect(images.length).to.equal(12);
 			done();
 		});
