@@ -1,9 +1,9 @@
 /* eslint-env node, mocha */
 /* eslint-disable no-unused-vars */
-let mocha = require('mocha');
-let chai = require('chai');
-let expect = chai.expect;
-let doomImage = require('../../../db/controllers/doomImage');
+var mocha = require('mocha');
+var chai = require('chai');
+var expect = chai.expect;
+var doomImage = require('../../../db/controllers/doomImage');
 /* eslint-enable no-unused-vars */
 
 let testImage = {
