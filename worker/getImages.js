@@ -1,33 +1,32 @@
-var request = require("request");
-var jsdom = require("jsdom").jsdom;
-var getImgurImages = require("./getImgurImages");
+var request = require('request');
+var jsdom = require('jsdom').jsdom;
+var getImgurImages = require('./getImgurImages');
+var pageUtils = require('./pageUtils');
 
 module.exports = function getImages(url, callback) {
-  request(url, function(err, response, body) {
-    if (err) throw err;
+	request(url, function(err, response, body) {
+		if (err) throw err;
 
-    var document = jsdom(body);
+		var document = jsdom(body);
 
-    var hasPosts = document.querySelector("body > table:nth-of-type(5)")
-      .nextElementSibling.nextSibling.nextSibling.nodeValue === " /spacer " ?
-      false : true;
+		let hasPosts = pageUtils.hasPosts(document);
 
-    if (!hasPosts) {
-      return callback(`No posts found on this page.`);
-    }
+		if (!hasPosts) {
+			return callback(`No posts found on this page.`);
+		}
 
-    var postBase = 5;
-    var count = 1;
-    var currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
+		var postBase = 5;
+		var count = 1;
+		var currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
 
-    while (currentPost.nextSibling.nextSibling.nodeValue !== " spacer ") {
-      count++;
-      currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
-    }
+		while (currentPost.nextSibling.nextSibling.nodeValue !== ' spacer ') {
+			count++;
+			currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
+		}
 
-    if (count < 30) {
-      return callback(`page ${url}\n has less than 30 posts on it; ABORT`);
-    }
+		if (count < 30) {
+			return callback(`page ${url}\n has less than 30 posts on it; ABORT`);
+		}
 
     var images = [];
 
@@ -58,8 +57,8 @@ module.exports = function getImages(url, callback) {
       [].forEach.call(postContent.childNodes, function(node) {
         var postData,
             src;
-            
-        if (node.nodeName === "IMG") {
+
+        if (node.nodeName === 'IMG') {
 
           src = node.src;
           postData = Object.assign({}, allPostData, {
@@ -69,10 +68,10 @@ module.exports = function getImages(url, callback) {
 
           images.push(postData);
 
-        } else if (node.nodeName === "A" &&
+        } else if (node.nodeName === 'A' &&
                     node.firstElementChild &&
-                    node.firstElementChild.nodeName === "IMG" &&
-                    node.firstElementChild.src.includes("imgur.com")) {
+                    node.firstElementChild.nodeName === 'IMG' &&
+                    node.firstElementChild.src.includes('imgur.com')) {
 
           postData = Object.assign({}, allPostData, {
             postId: postId,
@@ -81,9 +80,9 @@ module.exports = function getImages(url, callback) {
 
           getImgurImages(node.href, postData, callback);
 
-        } else if (node.nodeName === "A" &&
+        } else if (node.nodeName === 'A' &&
                     node.firstElementChild &&
-                    node.firstElementChild.nodeName === "IMG") {
+                    node.firstElementChild.nodeName === 'IMG') {
 
           src = node.firstElementChild.src;
           postData = Object.assign({}, allPostData, {
@@ -93,8 +92,8 @@ module.exports = function getImages(url, callback) {
 
           images.push(postData);
 
-        } else if (node.nodeName === "A" &&
-                    node.host.includes("imgur.com")) {
+        } else if (node.nodeName === 'A' &&
+                    node.host.includes('imgur.com')) {
           postData = Object.assign({}, allPostData, {
             postId: postId,
             startIndex: ++imageCount
