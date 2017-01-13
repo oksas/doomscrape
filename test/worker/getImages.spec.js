@@ -11,6 +11,8 @@ let url = 'https://www.doomworld.com/vb/doom-general/70830-post-your-doom-pictur
 let pageWithImgurUrl = 'https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/153/';
 
 describe('getImages', function() {
+	this.timeout(4000);
+
 	it('should find the proper number of images on a full page', done => {
 		getImages(url)
 		.then(images => {
@@ -22,7 +24,6 @@ describe('getImages', function() {
 	});
 
 	it('should find the proper number of images on a full page with imgur images', done => {
-		this.timeout(4000);
 		getImages(pageWithImgurUrl)
 		.then(images => {
 			expect(images.length).to.equal(15);
