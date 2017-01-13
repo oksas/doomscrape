@@ -15,7 +15,7 @@ let imageConfig = {
 		h: 200
 	},
 
-	basePath: 'public/images/'
+	basePath: 'tmp/'
 };
 
 module.exports = imageConfig;
