@@ -17,7 +17,7 @@ let emptyPageUrl = 'https://www.doomworld.com/vb/doom-general/42866-post-your-do
 // 1 - 29 posts, inclusive
 let partialPageUrl = 'https://www.doomworld.com/vb/doom-general/91781-is-there-a-clean-textless-version-of-the-heretic-tome-of-power-art/';
 
-describe('pageUtils', () => {
+describe('pageUtils', function() {
 	describe('hasPosts', () => {
 		it('should return true if a page has at least 1 post', done => {
 			request(partialPageUrl)
@@ -82,4 +82,6 @@ describe('pageUtils', () => {
 			});
 		});
 	});
+
+	// check that getImgurImages is called when page has imgur pics on it?
 });
