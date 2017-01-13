@@ -55,4 +55,30 @@ describe('pageUtils', () => {
 			});
 		});
 	});
+
+	describe('getPostCount', () => {
+		it('should accurately report a post count on a full page', done => {
+			request(fullPageUrl)
+			.then(body => {
+				let document = jsdom(body);
+				let postCount = pageUtils.getPostCount(document);
+				expect(postCount).to.equal(30);
+			})
+			.then(() => {
+				done();
+			});
+		});
+
+		it('should accurately report a post count on a partial page', done => {
+			request(partialPageUrl)
+			.then(body => {
+				let document = jsdom(body);
+				let postCount = pageUtils.getPostCount(document);
+				expect(postCount).to.equal(1);
+			})
+			.then(() => {
+				done();
+			});
+		});
+	});
 });
