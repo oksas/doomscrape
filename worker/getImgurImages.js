@@ -9,7 +9,6 @@ function getImgurImages(url, postInfo) {
 		// an imgur link might be a link to a (possibly single image) gallery, or a
 		// link to the img file itself; this covers the latter case
 		if (response.headers['content-type'].substr(0, 5) === 'image') {
-			console.log('~~~~~found an image on imgur, not a gallery');
 			let postData = {
 				author: postInfo.author,
 				postlink: postInfo.postlink,
@@ -23,7 +22,6 @@ function getImgurImages(url, postInfo) {
 
 		let document = jsdom(response.body);
 		let items = document.querySelectorAll('.zoom');
-		let count = items.length;
 		let images = [];
 
 		[].forEach.call(items, function(item) {
@@ -40,7 +38,6 @@ function getImgurImages(url, postInfo) {
 			images.push(postData);
 		});
 
-		console.log('~~~~~found an image on imgur, IS a gallery\n', images);
 		return images;
 	});
 };
