@@ -7,7 +7,7 @@ module.exports = function getImages(url, callback) {
 	request(url, function(err, response, body) {
 		if (err) throw err;
 
-		var document = jsdom(body);
+		let document = jsdom(body);
 
 		let hasPosts = pageUtils.hasPosts(document);
 
@@ -15,36 +15,29 @@ module.exports = function getImages(url, callback) {
 			return callback(`No posts found on this page.`);
 		}
 
-		var postBase = 5;
-		var count = 1;
-		var currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
-
-		while (currentPost.nextSibling.nextSibling.nodeValue !== ' spacer ') {
-			count++;
-			currentPost = document.querySelector(`body > table:nth-of-type(${postBase + count})`);
-		}
+		let count = pageUtils.getPostCount(document);
 
 		if (count < 30) {
 			return callback(`page ${url}\n has less than 30 posts on it; ABORT`);
 		}
 
-    var images = [];
+		let images = [];
 
     // count is now the num of posts on the page
-    for (var i = 0; i < count; i++) {
-      var post = document.querySelector(`body > table:nth-of-type(${postBase + i + 1})`);
+		for (var i = 0; i < count; i++) {
+			var post = document.querySelector(`body > table:nth-of-type(${pageUtils.postBase + i + 1})`);
 
-      var postAuthor = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
-      console.log(`Post author is ${postAuthor}`);
+			var postAuthor = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
+			console.log(`Post author is ${postAuthor}`);
 
-      var postDate = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
-      postDate = new Date(postDate);
+			var postDate = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
+			postDate = new Date(postDate);
 
-      var postPermalink = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[4].href;
+			var postPermalink = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[4].href;
 
-      var postId = /post\/(\d+)/g.exec(postPermalink)[1];
+			var postId = /post\/(\d+)/g.exec(postPermalink)[1];
 
-      var postContent = document.querySelector(`body > table:nth-of-type(${postBase + i + 1}) tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
+			var postContent = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
 
       var imageCount = 0;
 
