@@ -1,14 +1,17 @@
 var DoomImage = require('../models/DoomImage');
 
 var methods = {
-	insertNew: function(imageData) {
+	insertNew: imageData => {
 		return DoomImage.findOrCreate({ where: imageData })
 		.spread((doomImage, created) => {
 			return doomImage.dataValues;
 		});
 	},
-	findAll: function(filterOptions) {
+	findAll: filterOptions => {
 		return DoomImage.findAll({ where: filterOptions });
+	},
+	remove: filterOptions => {
+		return DoomImage.destroy({ where: filterOptions });
 	}
 };
 
