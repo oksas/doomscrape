@@ -1,12 +1,11 @@
-var request = require('request');
+var request = require('request-promise-native');
 var jsdom = require('jsdom').jsdom;
 var getImgurImages = require('./getImgurImages');
 var pageUtils = require('./pageUtils');
 
 module.exports = function getImages(url, callback) {
-	request(url, function(err, response, body) {
-		if (err) throw err;
-
+	return request(url)
+	.then((body) => {
 		let document = jsdom(body);
 
 		let hasPosts = pageUtils.hasPosts(document);
@@ -96,6 +95,7 @@ module.exports = function getImages(url, callback) {
 
       });
     }
-    callback(null, images);
+
+		return images;
   });
 };
