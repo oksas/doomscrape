@@ -1,45 +1,48 @@
-var request = require("request");
-var jsdom = require("jsdom").jsdom;
+var request = require('request-promise-native');
+var jsdom = require('jsdom').jsdom;
 
-module.exports = function getImgurImages(url, postInfo, callback) {
-  request(url, function(err, response, body) {
-    if (err) {
-      return callback(err);
-    }
+function getImgurImages(url, postInfo) {
+	return request(url, { resolveWithFullResponse: true })
+	.then((response) => {
+		let start = postInfo.startIndex;
 
-    var start = postInfo.startIndex;
+		// an imgur link might be a link to a (possibly single image) gallery, or a
+		// link to the img file itself; this covers the latter case
+		if (response.headers['content-type'].substr(0, 5) === 'image') {
+			console.log('~~~~~found an image on imgur, not a gallery');
+			let postData = {
+				author: postInfo.author,
+				postlink: postInfo.postlink,
+				date: postInfo.date,
+				image: url,
+				id: `${postInfo.postId}_${start}`
+			};
 
-    if (response.headers["content-type"].substr(0, 5) === "image") {
-      var postData = {
-        author: postInfo.author,
-        permalink: postInfo.permalink,
-        date: postInfo.date,
-        image: url,
-        id: `${postInfo.postId}_${start}`
-      };
+			return [postData];
+		}
 
-      return callback(null, [postData]);
-    }
+		let document = jsdom(response.body);
+		let items = document.querySelectorAll('.zoom');
+		let count = items.length;
+		let images = [];
 
-    var document = jsdom(body),
-        items = document.querySelectorAll(".zoom"),
-        count = items.length,
-        images = [];
+		[].forEach.call(items, function(item) {
+			let src = 'http:' + item.href;
 
-    [].forEach.call(items, function(item) {
-      var src = "http:" + item.href;
+			let postData = {
+				author: postInfo.author,
+				postlink: postInfo.postlink,
+				date: postInfo.date,
+				image: src,
+				id: `${postInfo.postId}_${start++}`
+			};
 
-      var postData = {
-        author: postInfo.author,
-        permalink: postInfo.permalink,
-        date: postInfo.date,
-        image: src,
-        id: `${postInfo.postId}_${start++}`
-      };
+			images.push(postData);
+		});
 
-      images.push(postData);
-    });
-
-    callback(null, images);
-  });
+		console.log('~~~~~found an image on imgur, IS a gallery\n', images);
+		return images;
+	});
 };
+
+module.exports = getImgurImages;

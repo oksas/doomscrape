@@ -1,4 +1,4 @@
-// var getImgurImages = require('./getImgurImages');
+var getImgurImages = require('./getImgurImages');
 
 let pageUtils = {
 	// postBase tells us how many tables inside body we need to skip before finding
@@ -62,12 +62,14 @@ let pageUtils = {
 									node.firstElementChild &&
 									node.firstElementChild.nodeName === 'IMG' &&
 									node.firstElementChild.src.includes('imgur.com')) {
+				// image is a thumbnail, wrapped in an <a>, whose href is likely to the
+				// full version on imgur
 				postData = Object.assign({}, allPostData, {
 					postId: postId,
 					startIndex: ++imageCount
 				});
 
-				// getImgurImages(node.href, postData, callback);
+				images.push(getImgurImages(node.href, postData));
 			} else if (node.nodeName === 'A' &&
 									node.firstElementChild &&
 									node.firstElementChild.nodeName === 'IMG') {
@@ -80,11 +82,13 @@ let pageUtils = {
 				images.push(postData);
 			} else if (node.nodeName === 'A' &&
 									node.host.includes('imgur.com')) {
+				// image is not actually an image; just a link to an image on imgur
+				// (Tango seems most often guilty of this, what a guy)
 				postData = Object.assign({}, allPostData, {
 					postId: postId,
 					startIndex: ++imageCount
 				});
-				// getImgurImages(node.href, postData, callback);
+				images.push(getImgurImages(node.href, postData));
 			}
 		});
 
