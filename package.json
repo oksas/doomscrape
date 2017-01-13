@@ -8,7 +8,8 @@
     "git": "git commit -m",
     "postgit": "git push",
     "watch:server": "nodemon --ignore public server.js",
-    "test": "mocha test/**/*.spec.js --reporter spec"
+    "test": "mocha test/**/*.spec.js --reporter spec",
+		"test:worker:watch": "mocha test/worker/*.spec.js --reporter spec --watch"
   },
   "repository": {
     "type": "git",
