@@ -21,6 +21,8 @@ let partialPageUrl = 'https://www.doomworld.com/vb/doom-general/91781-is-there-a
 let multiImagePostUrl = 'https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/141/';
 
 describe('pageUtils', function() {
+	this.timeout(4000);
+
 	describe('hasPosts', () => {
 		it('should return true if a page has at least 1 post', done => {
 			request(partialPageUrl)

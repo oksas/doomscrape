@@ -34,7 +34,19 @@ function getImages(url) {
 			}
 		}
 
-		return Promise.all(images);
+		return Promise.all(images)
+		.then(allImages => {
+			let flattenedImages = [];
+			allImages.forEach(image => {
+				if (image !== null) {
+					// if an image on imgur is too small it's ignored and marked as null,
+					// so filter those out
+					flattenedImages = flattenedImages.concat(image);
+				}
+			});
+
+			return flattenedImages;
+		});
 	});
 };
 

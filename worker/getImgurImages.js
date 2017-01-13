@@ -13,7 +13,7 @@ function getImgurImages(url, postInfo) {
 				author: postInfo.author,
 				postlink: postInfo.postlink,
 				date: postInfo.date,
-				image: url,
+				imageSrc: url,
 				id: `${postInfo.postId}_${start}`
 			};
 
@@ -22,6 +22,20 @@ function getImgurImages(url, postInfo) {
 
 		let document = jsdom(response.body);
 		let items = document.querySelectorAll('.zoom');
+
+		if (!items.length) {
+			// if there's an image but no .zoom elem, that means the image is too small
+			// I tried to get around this by using the selector '.post-image img' instead
+			// and changing src down below to use item.src instead of href, but for some
+			// reason this led to jsdom finding two images on a page where there was only
+			// one, even though doing the same query on the actual browser yeilded
+			// the correct number
+			// this is a really small edge case anyway, and we don't really care about
+			// small images anyway, so I won't go out of my way to debug this oddity
+			// just for images that will get discarded later in the pipeline anyway
+			return null;
+		}
+
 		let images = [];
 
 		[].forEach.call(items, function(item) {
@@ -31,7 +45,7 @@ function getImgurImages(url, postInfo) {
 				author: postInfo.author,
 				postlink: postInfo.postlink,
 				date: postInfo.date,
-				image: src,
+				imageSrc: src,
 				id: `${postInfo.postId}_${start++}`
 			};
 

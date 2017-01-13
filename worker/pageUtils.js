@@ -55,7 +55,7 @@ let pageUtils = {
 			if (node.nodeName === 'IMG') {
 				src = node.src;
 				postData = Object.assign({}, allPostData, {
-					image: src,
+					imageSrc: src,
 					id: `${postId}_${++imageCount}`
 				});
 
@@ -77,7 +77,7 @@ let pageUtils = {
 									node.firstElementChild.nodeName === 'IMG') {
 				src = node.firstElementChild.src;
 				postData = Object.assign({}, allPostData, {
-					image: src,
+					imageSrc: src,
 					id: `${postId}_${++imageCount}`
 				});
 
@@ -90,6 +90,7 @@ let pageUtils = {
 					postId: postId,
 					startIndex: ++imageCount
 				});
+
 				images.push(getImgurImages(node.href, postData));
 			}
 		});
