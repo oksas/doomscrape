@@ -1,1 +1,13 @@
 # Doomworld Forums Image Scraper
+
+## Notes to self about where to continue later
+
+`pageUtils.getPostData` still needs unit tests. `getImages` is very minimally tested, but it also sort of overlaps with `pageUtils.getPostData`, but it's still worth testing both of course. `pageUtils.getPostData` will need some refactoring (and so will `getImages`), both to just clean up the code, but also because I think `Promise.all` will need to be used, which will (I am pretty certain) change the way that the module is used within `getImages`. The reason for this is that `pageUtils.getPostData` gets data from a `document` (a giant string) and currently the way everything is implemented/used, it's expected that all relevant info that is needed can be extracted solely from that document. However, if you peek inside some of the `if` clauses inside `pageUtils.getPostData`, you will see that there are some cases where some additional async stuff needs to happen when digging deeper and extracting large images from Imgur, for example. This is maybe not an MVP feature, but it's small enough that it might be just doing now rather than after everything else is done. Taking care of this once for Imgur will make it easier to add support for other Image hosts in the future.
+
+Some more notes on data flow and assembling complete records to be put in the db. `pageUtils.getPostData` gets a few properties: `author`, `postlink`, `date`, `id`, and the url of the image src in non-Imgur cases (`image` current, but could probably be renamed). Thus the remaining fields to be completed before saving to the database, and what's required for them:
+
+- `permalink`: this field refers to a link to *my* version of the image on the internet, ie its location on S3 once file upload is set up
+- `filename`: this will make use of the `id` field being constructed by `pageUtils.getPostData`; file extension will be included here, so the `filename` field can be completed after downloading the image and determining its file type
+- `thumbname`: this depends on `filename`, so whenever filename is assembled, `thumbname` can be assembled based on whatever naming scheme I choose (I'm thinking maybe just a `_thumb` suffix or something)
+
+I think that covers it. Good next steps is definitely fleshing out more tests for `pageUtils` and `getImages` as necessary, and modifying the flow of data there to use `Promise.all`. Then, set up downloading of images, set up S3, set up saving of images to DB once uploaded. Then add field in database to track last page updated. Then set up the worker to do its thing and check for new posts/pages every so often. Then figure out where to host the DB and the worker.
