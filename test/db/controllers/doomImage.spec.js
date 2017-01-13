@@ -17,7 +17,7 @@ let testImage = {
 
 let authorFilter = { author: testImage.author };
 
-describe('doomImage controller', () => {
+describe('doomImage controller', function() {
 	afterEach(done => {
 		doomImage.remove({ author: testImage.author })
 		.then(() => {
