@@ -17,6 +17,9 @@ let emptyPageUrl = 'https://www.doomworld.com/vb/doom-general/42866-post-your-do
 // 1 - 29 posts, inclusive
 let partialPageUrl = 'https://www.doomworld.com/vb/doom-general/91781-is-there-a-clean-textless-version-of-the-heretic-tome-of-power-art/';
 
+// post 25 (from index 0) by Z0k has two images in the same post
+let multiImagePostUrl = 'https://www.doomworld.com/vb/doom-general/70830-post-your-doom-picture-part-2-read-the-image-posting-rules-in-the-faq/141/';
+
 describe('pageUtils', function() {
 	describe('hasPosts', () => {
 		it('should return true if a page has at least 1 post', done => {
@@ -83,5 +86,25 @@ describe('pageUtils', function() {
 		});
 	});
 
-	// check that getImgurImages is called when page has imgur pics on it?
+	describe('getPostData', () => {
+		it('should assign unique ids to multiple photos contained in a single post', done => {
+			request(multiImagePostUrl)
+			.then(body => {
+				let document = jsdom(body);
+				// use of Promise.all isn't really necessary here since these two
+				// particular images shouldn't need to be fetched form imgur or anything
+				// because they're just <img>s and not inside an <a>, but let's use
+				// Promise.all for consistency anyway
+				return Promise.all(pageUtils.getPostData(document, 25));
+			})
+			.then(allPostImages => {
+				expect(allPostImages.length).to.equal(2);
+				expect(allPostImages[0].author).to.equal(allPostImages[1].author);
+				expect(allPostImages[0].id).to.not.equal(allPostImages[1].id);
+			})
+			.then(() => {
+				done();
+			});
+		});
+	});
 });
