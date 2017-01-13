@@ -44,6 +44,8 @@ let pageUtils = {
 			date: postDate
 		};
 
+		// images could be static image data, or a Promise returned from
+		// getImgurImages etc.
 		let images = [];
 
 		[].forEach.call(postContent.childNodes, function(node) {
