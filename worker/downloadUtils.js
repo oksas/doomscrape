@@ -1,6 +1,8 @@
 var request = require('request-promise-native');
-var imageConfig = require('./imageConfig');
 var fs = require('fs-promise');
+var thenify = require('thenify');
+var sizeOf = thenify(require('image-size'));
+var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
 	downloadImage(imageData) {
@@ -28,6 +30,10 @@ let downloadUtils = {
 					return imagePath;
 				});
 		});
+	},
+
+	getImageSize(imagePath) {
+		return sizeOf(imagePath);
 	}
 };
 
