@@ -2,7 +2,7 @@ var request = require('request-promise-native');
 var fs = require('fs-promise');
 var thenify = require('thenify');
 var sizeOf = thenify(require('image-size'));
-var easyimage = require('easyimage');
+var thumb = thenify(require('node-thumbnail').thumb);
 var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
@@ -38,22 +38,21 @@ let downloadUtils = {
 	},
 
 	createThumbnail(imageData) {
-		return easyimage.thumbnail({
-			src: imageData.filepath + imageData.filename,
-			dst: imageData.filepath + imageData.thumbname,
+		return thumb({
+			source: imageData.filepath + imageData.filename,
+			destination: imageData.filepath,
 			width: imageConfig.thumbSizes.w,
-			height: imageConfig.thumbSizes.h,
-			x: 0,
-			y: 0
+			suffix: imageConfig.thumbSuffix,
+			quiet: true
 		});
 	},
 
 	getFilename(author, id, ext) {
-		return `${author}_${id}.${ext}`;
+		return `${author}_${id}.${ext}`.toLowerCase();
 	},
 
 	getThumbname(author, id, ext) {
-		return `${author}_${id}_thumb.${ext}`;
+		return `${author}_${id}${imageConfig.thumbSuffix}.${ext}`.toLowerCase();
 	}
 };
 

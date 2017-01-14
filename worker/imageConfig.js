@@ -1,4 +1,6 @@
 let imageConfig = {
+	thumbSuffix: '_thumb',
+
 	extMappings: {
 		'image/jpeg': 'jpg',
 		'image/png': 'png',
