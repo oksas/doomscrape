@@ -2,6 +2,7 @@ var request = require('request-promise-native');
 var fs = require('fs-promise');
 var thenify = require('thenify');
 var sizeOf = thenify(require('image-size'));
+var easyimage = require('easyimage');
 var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
@@ -23,7 +24,7 @@ let downloadUtils = {
 
 			let ext = imageConfig.extMappings[response.headers['content-type']];
 
-			let imagePath = `${imageConfig.basePath}${author}_${id}.${ext}`;
+			let imagePath = imageConfig.basePath + this.getFilename(author, id, ext);
 
 			return fs.writeFile(imagePath, response.body)
 				.then(() => {
@@ -34,6 +35,25 @@ let downloadUtils = {
 
 	getImageSize(imagePath) {
 		return sizeOf(imagePath);
+	},
+
+	createThumbnail(imageData) {
+		return easyimage.thumbnail({
+			src: imageData.filepath + imageData.filename,
+			dst: imageData.filepath + imageData.thumbname,
+			width: imageConfig.thumbSizes.w,
+			height: imageConfig.thumbSizes.h,
+			x: 0,
+			y: 0
+		});
+	},
+
+	getFilename(author, id, ext) {
+		return `${author}_${id}.${ext}`;
+	},
+
+	getThumbname(author, id, ext) {
+		return `${author}_${id}_thumb.${ext}`;
 	}
 };
 
