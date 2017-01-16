@@ -2,8 +2,6 @@
 
 ## Notes to self about where to continue later
 
-`pageUtils.getPostData` still needs unit tests. `getImages` is very minimally tested, but it also sort of overlaps with `pageUtils.getPostData`, but it's still worth testing both of course. `pageUtils.getPostData` is set up to use `Promise.all` but there are currently some issues with that data being nested in arrays in different places because of `getImgurImages`, so fix that.
-
 Some more notes on data flow and assembling complete records to be put in the db. `pageUtils.getPostData` gets a few properties: `author`, `postlink`, `date`, `id`, and the url of the image src in non-Imgur cases (`image` current, but could probably be renamed). Thus the remaining fields to be completed before saving to the database, and what's required for them:
 
 - `permalink`: this field refers to a link to *my* version of the image on the internet, ie its location on S3 once file upload is set up
