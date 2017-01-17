@@ -25,8 +25,8 @@ describe('downloadUtils', function() {
 			let savedpath;
 
 			downloadUtils.downloadImage(sampleImage)
-			.then(path => {
-				savedpath = path;
+			.then(({ filepath }) => {
+				savedpath = filepath;
 				return fs.exists(savedpath);
 			})
 			.then(exists => {
@@ -46,8 +46,8 @@ describe('downloadUtils', function() {
 			let savedpath;
 
 			downloadUtils.downloadImage(sampleImage)
-			.then(path => {
-				savedpath = path;
+			.then(({ filepath }) => {
+				savedpath = filepath;
 				return downloadUtils.getImageSize(savedpath);
 			})
 			.then(dimensions => {
@@ -66,19 +66,21 @@ describe('downloadUtils', function() {
 	describe('createThumbnail', () => {
 		it('should be able to create a thumbnail for a given file', done => {
 			let savedpath;
+			let filename = downloadUtils.getFilename(sampleImage.author, sampleImage.id, sampleExt);
 			let imageToResizeData = {
-				filename: downloadUtils.getFilename(sampleImage.author, sampleImage.id, sampleExt),
+				filename,
 				thumbname: downloadUtils.getThumbname(sampleImage.author, sampleImage.id, sampleExt),
-				filepath: imageConfig.basePath
+				folderpath: imageConfig.basePath,
+				filepath: imageConfig.basePath + filename
 			};
 
 			downloadUtils.downloadImage(sampleImage)
-			.then(path => {
-				savedpath = path;
+			.then(({ filepath }) => {
+				savedpath = filepath;
 				return downloadUtils.createThumbnail(imageToResizeData);
 			})
 			.then(() => {
-				return fs.exists(imageToResizeData.filepath + imageToResizeData.thumbname);
+				return fs.exists(imageToResizeData.folderpath + imageToResizeData.thumbname);
 			})
 			.then(exists => {
 				expect(exists).to.equal(true);
@@ -87,7 +89,7 @@ describe('downloadUtils', function() {
 				return fs.unlink(savedpath);
 			})
 			.then(() => {
-				return fs.unlink(imageToResizeData.filepath + imageToResizeData.thumbname);
+				return fs.unlink(imageToResizeData.folderpath + imageToResizeData.thumbname);
 			})
 			.then(() => {
 				done();

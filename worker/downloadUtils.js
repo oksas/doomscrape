@@ -6,6 +6,7 @@ var thumb = thenify(require('node-thumbnail').thumb);
 var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
+	// imageData should be: { author, postlink, date, id, imageSrc }
 	downloadImage(imageData) {
 		let author = imageData.author.toLowerCase();
 		let id = imageData.id;
@@ -23,24 +24,28 @@ let downloadUtils = {
 			}
 
 			let ext = imageConfig.extMappings[response.headers['content-type']];
+			let fileLocationData = {
+				filename: this.getFilename(author, id, ext),
+				thumbname: this.getThumbname(author, id, ext),
+				folderpath: imageConfig.basePath,
+				filepath: imageConfig.basePath + this.getFilename(author, id, ext)
+			};
 
-			let imagePath = imageConfig.basePath + this.getFilename(author, id, ext);
-
-			return fs.writeFile(imagePath, response.body)
+			return fs.writeFile(fileLocationData.filepath, response.body)
 				.then(() => {
-					return imagePath;
+					return fileLocationData;
 				});
 		});
 	},
 
-	getImageSize(imagePath) {
-		return sizeOf(imagePath);
+	getImageSize(filepath) {
+		return sizeOf(filepath);
 	},
 
 	createThumbnail(imageData) {
 		return thumb({
-			source: imageData.filepath + imageData.filename,
-			destination: imageData.filepath,
+			source: imageData.filepath,
+			destination: imageData.folderpath,
 			width: imageConfig.thumbSizes.w,
 			suffix: imageConfig.thumbSuffix,
 			quiet: true
