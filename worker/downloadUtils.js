@@ -7,12 +7,9 @@ var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
 	// imageData should be: { author, postlink, date, id, imageSrc }
-	downloadImage(imageData) {
-		let author = imageData.author.toLowerCase();
-		let id = imageData.id;
-
+	downloadImage({ author, postlink, date, id, imageSrc }) {
 		let options = {
-			uri: imageData.imageSrc,
+			uri: imageSrc,
 			resolveWithFullResponse: true,
 			encoding: null
 		};
@@ -24,18 +21,32 @@ let downloadUtils = {
 			}
 
 			let ext = imageConfig.extMappings[response.headers['content-type']];
-			let fileLocationData = {
-				filename: this.getFilename(author, id, ext),
-				thumbname: this.getThumbname(author, id, ext),
-				folderpath: imageConfig.basePath,
-				filepath: imageConfig.basePath + this.getFilename(author, id, ext)
-			};
 
-			return fs.writeFile(fileLocationData.filepath, response.body)
+			let normalizedAuthor = author.toLowerCase();
+			let filename = this.getFilename(normalizedAuthor, id, ext);
+			let thumbname = this.getThumbname(normalizedAuthor, id, ext);
+			let folderpath = imageConfig.basePath;
+			let filepath = folderpath + filename;
+
+			return fs.writeFile(filepath, response.body)
 				.then(() => {
-					return fileLocationData;
+					return {
+						author: normalizedAuthor,
+						postlink,
+						date,
+						filename,
+						thumbname,
+						folderpath,
+						filepath
+					};
 				});
 		});
+	},
+
+	downloadAllImages(imageList) {
+		let allPendingDownloads = imageList.map(imageData => this.downloadImage(imageData));
+
+		return Promise.all(allPendingDownloads);
 	},
 
 	getImageSize(filepath) {
@@ -50,6 +61,13 @@ let downloadUtils = {
 			suffix: imageConfig.thumbSuffix,
 			quiet: true
 		});
+	},
+
+	createAllThumbnails(imageList) {
+		let allPendingThumbnails = imageList.map(imageData => this.createThumbnail(imageData));
+		console.log('all pending:', allPendingThumbnails);
+
+		return Promise.all(allPendingThumbnails);
 	},
 
 	getFilename(author, id, ext) {
