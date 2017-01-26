@@ -2,7 +2,7 @@ var request = require('request-promise-native');
 var fs = require('fs-promise');
 var thenify = require('thenify');
 var sizeOf = thenify(require('image-size'));
-var thumb = thenify(require('node-thumbnail').thumb);
+var thumb = require('node-thumbnail').thumb;
 var imageConfig = require('./imageConfig');
 
 let downloadUtils = {
@@ -59,13 +59,13 @@ let downloadUtils = {
 			destination: imageData.folderpath,
 			width: imageConfig.thumbSizes.w,
 			suffix: imageConfig.thumbSuffix,
-			quiet: true
+			quiet: true,
+			overwrite: true
 		});
 	},
 
 	createAllThumbnails(imageList) {
 		let allPendingThumbnails = imageList.map(imageData => this.createThumbnail(imageData));
-		console.log('all pending:', allPendingThumbnails);
 
 		return Promise.all(allPendingThumbnails);
 	},
