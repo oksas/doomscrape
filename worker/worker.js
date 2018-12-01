@@ -20,9 +20,9 @@ getImages(urls[0])
 .then(images => {
 	return downloadUtils.downloadAllImages(images);
 })
-.then(downloadedImages => {
-	return downloadUtils.createAllThumbnails(downloadedImages);
-})
+// .then(downloadedImages => {
+// 	return downloadUtils.createAllThumbnails(downloadedImages);
+// })
 .then(() => {
 	console.log('All done downloading and creating thumbnails from images');
 	return;

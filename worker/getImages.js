@@ -5,6 +5,7 @@ var pageUtils = require('./pageUtils');
 function getImages(url) {
 	return request(url)
 	.then(body => {
+		console.log('page body is', body);
 		let document = jsdom(body);
 
 		let hasPosts = pageUtils.hasPosts(document);
@@ -24,6 +25,7 @@ function getImages(url) {
 		let images = [];
 
 		for (var i = 0; i < count; i++) {
+			console.log('first post', document.querySelector('.cPost').innerHTML);
 			let postData = pageUtils.getPostData(document, i);
 			if (postData) {
 				// use concat so that if a post has no images in it and returns [],

@@ -1,40 +1,42 @@
 var getImgurImages = require('./getImgurImages');
 
 let pageUtils = {
-	// postBase tells us how many tables inside body we need to skip before finding
-	// a potential post
-	postBase: 5,
-
 	hasPosts(document) {
-		return document.querySelector('body > table:nth-of-type(5)')
-			.nextElementSibling.nextSibling.nextSibling.nodeValue !== ' /spacer ';
+		return document.querySelectorAll('.cPost').length;
 	},
 
 	getPostCount(document) {
-		let count = 1;
-		let currentPost = document.querySelector(`body > table:nth-of-type(${this.postBase + count})`);
-
-		while (currentPost.nextSibling.nextSibling.nodeValue !== ' spacer ') {
-			count++;
-			currentPost = document.querySelector(`body > table:nth-of-type(${this.postBase + count})`);
-		}
-
-		return count;
+		return document.querySelectorAll('.cPost').length;
 	},
 
+	// note to self: I don't think this function returns anything but the actual list
+	// of images from a post? meaning that the author name, post id, etc. don't seem
+	// to be stored anywhere? or at least not from what I can see at first glance at this
+	// code after several years. could be wrong though. - 11/30/2018
 	getPostData(document, i) {
-		let post = document.querySelector(`body > table:nth-of-type(${this.postBase + i + 1})`);
+		// rewritten to new DW
+		let post = document.querySelectorAll(`.cPost`)[i];
 
-		let postAuthor = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(1) font b`).innerHTML;
+		// rewritten to new DW
+		let postAuthor = post.querySelector(`.cAuthorPane_author a`).innerHTML;
 
-		let postDate = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[1].nodeValue;
+		// rewritten to new DW
+		// there are two potential <time> elements inside a post:
+		// the first is the date in "Posted ____ (edited)" at the top
+		// the second is "Edited ____ by Author" at the bottom if edited
+		let postDate = post.querySelectorAll(`time`)[0].dateTime;
 		postDate = new Date(postDate);
 
-		let postPermalink = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(2) td:nth-of-type(1) font`).childNodes[4].href;
+		// rewritten to new DW
+		// the permalink doesn't seem to have any unique class, so we have to fetch
+		// it relative to the time element
+		let postPermalink = post.querySelectorAll(`time`)[0].parentElement.href;
+		
+		// rewritten to new DW
+		let postId = post.querySelector('.ipsComment_content').getAttribute('commentid');
 
-		let postId = /post\/(\d+)/g.exec(postPermalink)[1];
-
-		let postContent = post.querySelector(`tr td:nth-of-type(2) table tbody tr td table tbody tr:nth-of-type(1) td:nth-of-type(2) font:nth-of-type(2)`);
+		// rewritten to new DW
+		let postContent = post.querySelector(`.cPost_contentWrap > div > p`);
 
 		let imageCount = 0;
 
@@ -49,8 +51,8 @@ let pageUtils = {
 		let images = [];
 
 		[].forEach.call(postContent.childNodes, function(node) {
-			let postData,
-				src;
+			let postData;
+			let src;
 
 			if (node.nodeName === 'IMG') {
 				src = node.src;
