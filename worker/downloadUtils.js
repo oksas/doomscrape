@@ -17,7 +17,7 @@ let downloadUtils = {
 		return request(options)
 		.then(response => {
 			if (response.headers['content-type'].substr(0, 5) !== 'image') {
-				// handle this with a logger maybe?
+				console.log(`Image does not appear to be an image?`);
 			}
 
 			let ext = imageConfig.extMappings[response.headers['content-type']];
@@ -28,6 +28,9 @@ let downloadUtils = {
 			let folderpath = imageConfig.basePath;
 			let filepath = folderpath + filename;
 
+			// this will fail if any directories it tries to write to do not exist
+			// so there should be a check that all subdirectories exist
+			// if not, make them
 			return fs.writeFile(filepath, response.body)
 				.then(() => {
 					return {
@@ -39,7 +42,18 @@ let downloadUtils = {
 						folderpath,
 						filepath
 					};
+				})
+				.then(() => {
+					console.log(`Wrote image file ${filepath}`);
+					console.log('\n');
 				});
+		})
+		.catch(response => {
+			console.log(`Failed to download image with src ${imageSrc}:`);
+			console.log(`Status code: ${response.statusCode}`);
+			console.log(`${response}`);
+			console.log('\n');
+			
 		});
 	},
 

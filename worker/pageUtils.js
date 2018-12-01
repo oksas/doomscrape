@@ -18,7 +18,7 @@ let pageUtils = {
 		let post = document.querySelectorAll(`.cPost`)[i];
 
 		// rewritten to new DW
-		let postAuthor = post.querySelector(`.cAuthorPane_author a`).innerHTML;
+		let postAuthor = post.querySelector(`.cAuthorPane_author a > span`).innerHTML;
 
 		// rewritten to new DW
 		// there are two potential <time> elements inside a post:
@@ -45,6 +45,9 @@ let pageUtils = {
 			postlink: postPermalink,
 			date: postDate
 		};
+
+		console.log(`allPostData for post ${i}:`);
+		console.log(allPostData);
 
 		// images could be static image data, or a Promise returned from
 		// getImgurImages etc.

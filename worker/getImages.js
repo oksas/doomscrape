@@ -5,35 +5,36 @@ var pageUtils = require('./pageUtils');
 function getImages(url) {
 	return request(url)
 	.then(body => {
-		console.log('page body is', body);
 		let document = jsdom(body);
-
-		let hasPosts = pageUtils.hasPosts(document);
-
-		if (!hasPosts) {
-			// handle with logger
-		}
 
 		let count = pageUtils.getPostCount(document);
 
-		if (count < 30) {
-			// handle with logger
+		if (count === 0) {
+			console.log(`The attempted url contains no posts: ${url}`);
+			console.log(`Quitting`);
+		} else if (count < 30) {
+			console.log(`The attempted url contains more than 30 posts somehow?`);
+			console.log(`Quitting`);
 		}
 
 		// images can contain items that are either just image data objects, or
 		// promises that resolve to image data objects fetched on Imgur or something
 		let images = [];
 
+		console.log(`Iterating over ${count} posts...`);
 		for (var i = 0; i < count; i++) {
-			console.log('first post', document.querySelector('.cPost').innerHTML);
+			console.log('\n');
 			let postData = pageUtils.getPostData(document, i);
+			console.log(`Retrieved post data for post ${i}...`);
 			if (postData) {
+				console.log(`Found image data inside post ${i}; adding to queue`);
 				// use concat so that if a post has no images in it and returns [],
 				// no invalid elems are added to the images array
 				images = images.concat(postData);
 			}
 		}
 
+		console.log(`Flattening images...`);
 		return Promise.all(images)
 		.then(allImages => {
 			let flattenedImages = [];
